@@ -1,4 +1,4 @@
-# BiScheme Window Architecture
+# BiwaScheme Window Architecture
 
 This document is the technical reference for the two types of interactive Scheme windows used in this project. Read this before modifying the IDE code.
 
