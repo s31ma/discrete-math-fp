@@ -1,10 +1,31 @@
 <!DOCTYPE html>
+<!--
+
+  The file is organized in three big blocks:
+    1. Libraries  (BiwaScheme + jQuery, minified, inlined)
+    2. CSS        (all styles, one <style> block)
+    3. HTML + JS  (three module sections + IDE engine)
+
+  To jump to your section, search for:
+    "=== MODULE 3 ===" — Induction & Towers of Hanoi
+    "=== MODULE 4 ===" — Balanced Parentheses & Catalan Numbers
+    "=== MODULE 5 ===" — N-Queens & Backtracking
+    "IDE ENGINE"       — shared BiwaScheme interpreter + IDE factory
+-->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Discrete Math Through Functional Programming</title>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     THIRD-PARTY LIBRARIES (minified, fully inlined — no CDN required)
+     BiwaScheme 0.8.3  — R5RS Scheme interpreter written in JavaScript
+                         This is what runs all the Scheme code in the IDEs
+     jQuery 3.6.0      — DOM utilities (used for some widget helpers)
+     Both are MIT-licensed; their copyright headers are preserved below.
+     ═══════════════════════════════════════════════════════════════════ -->
 <script>/*
  * BiwaScheme 0.8.3 - R6RS/R7RS Scheme in JavaScript
  *
@@ -12476,6 +12497,13 @@ var BiwaScheme = (function () {
 })();
 
 </script>
+<!-- ═══════════════════════════════════════════════════════════════════
+     CSS — All styles for the textbook in one block.
+     I used CSS custom properties (variables) so the whole color scheme
+     can be changed from the :root section at the top. Dark theme with
+     a warm amber accent. Sections: root variables → layout → nav →
+     content → IDE panels → syntax highlighting → per-module widgets.
+     ═══════════════════════════════════════════════════════════════════ -->
 <style>
 :root {
   --bg:#0d0d0d;--surface:#111111;--border:#1e1e1e;--border-bright:#2a2a2a;
@@ -12664,6 +12692,13 @@ pre .str{color:var(--accent);}pre .cmt{color:var(--text-dim);font-style:italic;}
 </style>
 </head>
 <body>
+<!-- ═══════════════════════════════════════════════════════════════════
+     HTML BODY — Page structure
+     A thin progress bar sits at the very top (position: fixed).
+     Then a top navigation bar with three links (one per module).
+     Each module lives in a <div class="module-section">; only the
+     active one is visible at a time (toggled by showModule() in JS).
+     ═══════════════════════════════════════════════════════════════════ -->
 <div class="progress-bar" id="progress"></div>
 
 <!-- TOP NAVIGATION -->
@@ -12675,6 +12710,13 @@ pre .str{color:var(--accent);}pre .cmt{color:var(--text-dim);font-style:italic;}
 </nav>
 
 <!-- ═══════════════════════════════════════════════════════ MODULE 3 -->
+<!-- ═══════════════════════════════════════════════════════════════════
+     === MODULE 3 === Induction & Towers of Hanoi
+     Topics: mathematical induction, proof by strong induction,
+     T(n) = 2^n - 1 move count proof.
+     Key functions: hanoi, count-hanoi
+     Widgets: animated peg-and-disk SVG simulation, recursion tree
+     ═══════════════════════════════════════════════════════════════════ -->
 <div class="module-section active" id="module-m3">
 <div class="page-wrap">
 
@@ -13105,6 +13147,14 @@ T(n) = 2 · T(n−1) + 1</span></pre>
 </div><!-- /module-m3 -->
 
 <!-- ═══════════════════════════════════════════════════════ MODULE 4 -->
+<!-- ═══════════════════════════════════════════════════════════════════
+     === MODULE 4 === Balanced Parentheses & Catalan Numbers
+     Topics: tail recursion, structural induction on lists,
+     Catalan numbers C(n) = (2n choose n) / (n+1).
+     Key functions: balance-helper, balanced?
+     Widgets: live paren checker with trace table, Catalan bar chart,
+              DFS generation stepper, step-by-step walkthrough
+     ═══════════════════════════════════════════════════════════════════ -->
 <div class="module-section" id="module-m4">
 <div class="page-wrap">
 
@@ -13587,6 +13637,17 @@ C(n) = C(0)·C(n−1) + C(1)·C(n−2) + … + C(n−1)·C(0)
 </div><!-- /module-m4 -->
 
 <!-- ═══════════════════════════════════════════════════════ MODULE 5 -->
+<!-- ═══════════════════════════════════════════════════════════════════
+     === MODULE 5 === N-Queens & Backtracking
+     Topics: constraint satisfaction, backtracking search, proof by
+     strong induction on the recursion tree.
+     Key functions: attacks?, safe?, solve-helper, n-queens
+     Widgets: interactive chessboard solver, backtracking tree stepper
+     Known bug: the Scheme n-queens function has a row-indexing error
+     (placed list is built newest-first via cons, but check-rest walks
+     it oldest-first, giving wrong row numbers to attacks?). The visual
+     board widget uses a separate correct JavaScript implementation.
+     ═══════════════════════════════════════════════════════════════════ -->
 <div class="module-section" id="module-m5">
 <div class="page-wrap">
 
@@ -14102,10 +14163,30 @@ C(n) = C(0)·C(n−1) + C(1)·C(n−2) + … + C(n−1)·C(0)
 </div><!-- /module-m5 -->
 
 
+<!-- ═══════════════════════════════════════════════════════════════════
+     JAVASCRIPT — ALL CUSTOM CODE
+     Everything below is code I wrote. The libraries above are untouched.
+
+     Structure:
+       showModule()         — switches which module is visible in the nav
+       Progress bar         — thin bar at top tracks scroll position
+       Inline IDE engine    — runs the small scratch-pad editors mid-lesson
+       _splitTopLevel()     — parses Scheme source into individual expressions
+       Module IDE engine    — factory function that builds the big full-page IDEs
+       createModuleIDE()    — call this once per module to wire up its main IDE
+       Module 3 JS          — Hanoi animation + recursion tree visualizer
+       Module 4 JS          — Paren checker, Catalan widget, generation stepper
+       Module 5 JS          — N-Queens board, backtracking tree visualizer
+       createModuleIDE(m3)  — initialize Module 3's main Scheme IDE
+       createModuleIDE(m4)  — initialize Module 4's main Scheme IDE
+       createModuleIDE(m5)  — initialize Module 5's main Scheme IDE
+     ═══════════════════════════════════════════════════════════════════ -->
 <script>
 // ═══════════════════════════════════════════════════════
 // MODULE SWITCHER
 // ═══════════════════════════════════════════════════════
+// showModule(id, el) — hides all module sections and shows the one
+// matching `id`. Called by the top nav links. Scrolls to the top.
 function showModule(id, el) {
   document.querySelectorAll('.module-section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.top-nav a').forEach(a => a.classList.remove('active'));
@@ -14130,6 +14211,11 @@ var _inlineInterpreter = null;
 var _inlineReady = false;
 var _inlineQueue = [];
 
+// ─── Inline IDE engine ───────────────────────────────────────────────
+// The small mid-lesson IDEs (defined with class="inline-ide") are simpler
+// than the full module IDEs but share the same BiwaScheme interpreter.
+// _checkInlineReady polls every 200ms until the shared interpreter is up,
+// then replays any queued run requests.
 function _checkInlineReady() {
   if (_sharedReady) {
     _inlineInterpreter = _sharedInterp;
@@ -14142,6 +14228,10 @@ function _checkInlineReady() {
 }
 setTimeout(_checkInlineReady, 700);
 
+// runInlineIDE(ideId) — runs the code in a small inline IDE and shows
+// results in the output div below it. These are the compact scratch pads
+// that appear mid-lesson. They share the same interpreter as the full IDEs.
+// Keyboard shortcuts: Tab → 2 spaces, Enter → auto-indent, Ctrl+Enter → run.
 function runInlineIDE(ideId) {
   const editor = document.getElementById(ideId + '-editor');
   const out = document.getElementById(ideId + '-out');
@@ -14217,6 +14307,10 @@ function runInlineIDE(ideId) {
   next();
 }
 
+// _splitTopLevel(src) — splits a multi-expression Scheme string into
+// individual top-level expressions so each one can be evaluated separately
+// and its result shown on its own line. Handles nested parens, strings,
+// and line comments correctly.
 function _splitTopLevel(src) {
   const exprs = []; let depth = 0, start = null, inStr = false, escape = false;
   for (let i = 0; i < src.length; i++) {
@@ -14243,6 +14337,13 @@ function _splitTopLevel(src) {
 // MODULE MAIN IDE ENGINE (shared factory)
 // ═══════════════════════════════════════════════════════
 // ── Shared BiwaScheme interpreter (one instance, shared across all module IDEs) ──
+// ─── Shared BiwaScheme interpreter ───────────────────────────────────
+// Instead of creating a new interpreter per module (which caused three
+// separate environments that couldn't share definitions), there is exactly
+// ONE interpreter instance shared across all IDEs.
+// Boot is deferred 600ms to let BiwaScheme finish its own initialization.
+// If createModuleIDE is called before the interpreter is ready, the request
+// is queued in _sharedQueue and replayed once _initSharedInterp fires.
 var _sharedInterp = null;
 var _sharedReady  = false;
 var _sharedQueue  = [];  // [{preload, callback}]
@@ -14265,6 +14366,12 @@ function _initSharedInterp() {
 }
 setTimeout(_initSharedInterp, 600);
 
+// createModuleIDE(opts) — factory function that wires up one full-page IDE.
+// Call it once per module, passing DOM element IDs and a preload string.
+// The preload string is Scheme source that gets evaluated into the shared
+// interpreter so those definitions are available before the student runs anything.
+// All module IDEs share one interpreter instance (_sharedInterp), so definitions
+// made in module 3 are still in scope when the student switches to module 4.
 function createModuleIDE(opts) {
   const { prefix, editorId, outputId, statusId, cursorId, runBtnId, clearBtnId, runCountId, preload, snippetTarget } = opts;
   const editor = document.getElementById(editorId);
@@ -14755,7 +14862,8 @@ window.addEventListener('scroll', () => {
 // M3 IDE is initialized by createModuleIDE (see below M4 widgets)
 
 
-// Module 3 main IDE
+// Module 3 main IDE — pre-loads hanoi and count-hanoi into the shared
+// interpreter so students can call (hanoi 3 'A 'C 'B) immediately.
 createModuleIDE({
   prefix: 'm3',
   containerId: 'module-m3',
@@ -15193,7 +15301,8 @@ window.addEventListener('scroll', () => {
 })();
 
 
-// Module 4 main IDE
+// Module 4 main IDE — pre-loads balance-helper and balanced?
+// so students can call (balanced? '(op cl)) without defining anything first.
 createModuleIDE({
   prefix: 'm4',
   containerId: 'module-m4',
@@ -15225,6 +15334,11 @@ window.addEventListener('scroll', () => {
   document.getElementById('progress').style.width = pct + '%';
 });
 
+// N-Queens solver in JavaScript — this is the CORRECT implementation
+// used by all the visual widgets. It is separate from the Scheme version.
+// jsAttacks: checks row, column, and both diagonals for conflicts
+// jsIsSafe:  walks the placed[] array (0-indexed rows) calling jsAttacks
+// solveNQueens: recursive backtracker, returns all solutions as arrays
 // N-QUEENS SOLVER (JS for widgets)
 function jsAttacks(r, c, row, col) {
   return c === col || (r - c) === (row - col) || (r + c) === (row + col);
@@ -15518,7 +15632,11 @@ function solveNQueens(n) {
 
 
 
-// Module 5 main IDE
+// Module 5 main IDE — pre-loads attacks?, safe?, solve-helper, n-queens
+// NOTE: n-queens has a known row-indexing bug (placed list is newest-first
+// via cons, but check-rest walks oldest-first). The proof in section 06
+// was written assuming a correct implementation; the visual board widget
+// above uses a separate correct JavaScript version.
 createModuleIDE({
   prefix: 'm5',
   containerId: 'module-m5',
